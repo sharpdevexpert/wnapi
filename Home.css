@@ -1,0 +1,71 @@
+﻿/* Page-specific styling */
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    margin: 0 0 40px; /* bottom = footer height */
+}
+.top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    padding-bottom: 8px;
+    background-color: white;
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    height: 40px;
+    width: 100%;
+    padding-top: 8px;
+    background-color: white;
+    z-index: 1;
+}
+
+.footer-cancel {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    height: 40px;
+    width: 100%;
+    padding-top: 8px;
+    background-color: white;
+    z-index: 2;
+}
+
+.padding {
+    padding: 15px;
+}
+
+.selected-checkboxes-div {
+    position: relative;
+    padding: 20px;
+    margin-top: 20%;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+}
+
+#notification-popup.MessageBanner {
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    text-align: left;
+    height: inherit;
+    min-width: inherit;
+    z-index: 3;
+}
+
+#notification-popup .MessageBanner-text {
+    margin: 0;
+    padding: 18px 15px;
+    min-width: inherit;
+}

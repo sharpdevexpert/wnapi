@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>Windsor API Connector</title>
+
+    <script src="Scripts/jquery-3.4.1.js" type="text/javascript"></script>
+    <script src="Scripts/MessageBanner.js" type="text/javascript"></script>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/3.6.3/fabric.min.js" type="text/javascript"></script>
+
+    <script src="Home.js" type="text/javascript"></script>
+    <script src="Scripts/jquery.fabric.js" type="text/javascript"></script>
+
+    <link href="Home.css" rel="stylesheet" type="text/css" />
+    <link href="Checkbox.css" rel="stylesheet" type="text/css" />
+    <link href="../Content/Button.css" rel="stylesheet" type="text/css" />
+    <link href="../Content/MessageBanner.css" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/9.6.0/css/fabric.min.css">
+    <link rel="stylesheet" href="https://appsforoffice.microsoft.com/fabric/2.1.0/fabric.components.min.css">
+</head>
+
+<body class="ms-Fabric" dir="ltr">
+    <div id="content-main">
+        <div class="padding">
+            <div class="top">
+                <div class="credentials center">
+                    <label class="ms-Label" style="color:#0078d7; font-weight:bold;">>>Credentials<<</label>
+                </div>
+                <div class="hide-credentials">
+                    <div class="ms-TextField ms-TextField--underlined">
+                        <label class="ms-Label" style="color:#0078d7; font-weight:bold;">Username</label>
+                        <input id="username" class="ms-TextField-field" type="text" value="" placeholder="">
+                    </div>
+
+                    <div class="ms-TextField ms-TextField--underlined">
+                        <label class="ms-Label" style="color:#0078d7; font-weight:bold;">Token</label>
+                        <input id="token" class="ms-TextField-field" type="text" value="" placeholder="">
+                    </div>
+                </div>
+
+                <div class="center">
+                    <button id="retrieve" class="ms-Button ms-Button--primary">
+                        <span class="ms-Button-label">Retrieve Column List</span>
+                    </button>
+                </div>
+
+                <br />
+
+                <div class="ms-DatePicker">
+                    <div class="ms-TextField">
+                        <!--<label class="ms-Label">Start date</label>-->
+                        <i class="ms-DatePicker-event ms-Icon ms-Icon--event"></i>
+                        <input class="ms-TextField-field" type="text" placeholder="Select start date&hellip;">
+                    </div>
+                    <div class="ms-DatePicker-monthComponents">
+                        <span class="ms-DatePicker-nextMonth js-nextMonth"><i class="ms-Icon ms-Icon--chevronRight"></i></span>
+                        <span class="ms-DatePicker-prevMonth js-prevMonth"><i class="ms-Icon ms-Icon--chevronLeft"></i></span>
+                        <div class="ms-DatePicker-headerToggleView js-showMonthPicker"></div>
+                    </div>
+                    <!--<span class="ms-DatePicker-goToday js-goToday">Go to today</span>-->
+                    <div class="ms-DatePicker-monthPicker">
+                        <div class="ms-DatePicker-header">
+                            <div class="ms-DatePicker-yearComponents">
+                                <span class="ms-DatePicker-nextYear js-nextYear"><i class="ms-Icon ms-Icon--chevronRight"></i></span>
+                                <span class="ms-DatePicker-prevYear js-prevYear"><i class="ms-Icon ms-Icon--chevronLeft"></i></span>
+                            </div>
+                            <div class="ms-DatePicker-currentYear js-showYearPicker"></div>
+                        </div>
+                        <div class="ms-DatePicker-optionGrid">
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="0">Jan</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="1">Feb</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="2">Mar</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="3">Apr</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="4">May</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="5">Jun</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="6">Jul</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="7">Aug</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="8">Sep</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="9">Oct</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="10">Nov</span>
+                            <span class="ms-DatePicker-monthOption js-changeDate" data-month="11">Dec</span>
+                        </div>
+                    </div>
+                    <div class="ms-DatePicker-yearPicker">
+                        <div class="ms-DatePicker-decadeComponents">
+                            <span class="ms-DatePicker-nextDecade js-nextDecade"><i class="ms-Icon ms-Icon--chevronRight"></i></span>
+                            <span class="ms-DatePicker-prevDecade js-prevDecade"><i class="ms-Icon ms-Icon--chevronLeft"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+        </div>
+    </div>
+    <div class="selected-checkboxes-div">
+        <div class="selected-checkboxes">
+
+        </div>
+    </div>
+    <div class="footer">
+        <div class="ms-Grid center">
+            <div class="ms-Grid-row">
+                <div id="alldiv" class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
+                    <button id="all" class="ms-Button ms-Button--primary" style="width:120px" action="deselectall">
+                        <span class="ms-Button-label selectdeselectall">Deselect All</span>
+                    </button>
+                </div>
+                <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
+                    <button id="execute" class="ms-Button ms-Button--primary" style="width:120px">
+                        <span class="ms-Button-label">Execute</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-cancel" style="display:none;">
+        <div class="ms-Grid center">
+            <div class="ms-Grid-row">
+                <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
+                    <button class="ms-Button">
+                        <span id="status" class="ms-Button-label"></span>
+                    </button>
+                </div>
+            </div>
+            <div class="ms-Grid-row">
+                <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
+                    <button id="cancel" class="ms-Button ms-Button--primary" style="width:120px">
+                        <span class="ms-Button-label">Cancel</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Component used for displaying notifications -->
+    <div class="MessageBanner" id="notification-popup">
+        <div class="MessageBanner-content">
+            <div class="MessageBanner-text">
+                <div class="MessageBanner-clipper">
+                    <div class="ms-font-m-plus ms-fontWeight-semibold" id="notification-header"></div>
+                    <div class="ms-font-m ms-fontWeight-semilight" id="notification-body"></div>
+                </div>
+            </div>
+            <button class="MessageBanner-expand" style="display:none"><i class="ms-Icon ms-Icon--chevronsDown"></i> </button>
+            <div class="MessageBanner-action"></div>
+        </div>
+        <button class="MessageBanner-close"> <i class="ms-Icon ms-Icon--ChromeClose"></i> </button>
+    </div>
+</body>
+</html>
