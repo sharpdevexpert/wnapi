@@ -16,7 +16,8 @@
     var cancel;
     var statusLabel;
     var positionCursor;
-    var date;
+    var datePicker;
+    var dateRest;
 
     // The initialize function must be run each time a new page is loaded.
     Office.initialize = function (reason) {
@@ -47,7 +48,7 @@
             if ($.fn.DatePicker) {
                 $('.ms-DatePicker').DatePicker({
                     onSet: function (context) {
-                        date = new Date(context.select);
+                        datePicker = new Date(context.select);
                     }
                 });
             }
@@ -162,6 +163,8 @@
             });
 
             if (selected.length != 0) {
+                clearExcel();
+
                 values = [];
                 values.length = 0;
                 values[0] = selected;
@@ -174,7 +177,13 @@
 
                 page =1;
                 positionCursor = 0;
-                date = date.toISOString().replace('T', ' ').replace('Z', '');
+
+                if (datePicker != undefined && datePicker != 'Invalid Date') {
+                    dateRest = datePicker.toISOString().replace('T', ' ').replace('Z', '');
+                }
+                else {
+                    dateRest = null;
+                }
 
                 showCancel();
 
@@ -278,8 +287,8 @@
 
         var currentEndpoint;
 
-        if (date) {
-            currentEndpoint = startDateEndpoint.split('{username}').join(user).replace('{date}', date).replace('{apykey}', token).replace('{page}', ++page).replace('{pagesize}', pageSize);
+        if (dateRest) {
+            currentEndpoint = startDateEndpoint.split('{username}').join(user).replace('{date}', dateRest).replace('{apykey}', token).replace('{page}', ++page).replace('{pagesize}', pageSize);
         }
         else {
             currentEndpoint = endpoint.split('{username}').join(user).replace('{apykey}', token).replace('{page}', ++page).replace('{pagesize}', pageSize);
@@ -322,6 +331,21 @@
                     showNotification('Finished', '');
                 }
             });
+
+        }).catch(errorHandler);
+    }
+
+    function clearExcel() {
+        Excel.run(function (ctx) {
+            ctx.application.suspendApiCalculationUntilNextSync();
+            ctx.application.suspendScreenUpdatingUntilNextSync();
+
+            var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+
+            var range = sheet.getRange();
+            range.clear();
+
+            return ctx.sync();
 
         }).catch(errorHandler);
     }
