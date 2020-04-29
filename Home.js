@@ -5,19 +5,29 @@
 
     var localStorageUsername = 'windsorapiusername';
     var localStorageToken = 'windsorapitoken';
+
     var pageSize = 1000;
     var callsPerEnter = 2000;
 
-    var endpoint = 'https://api.windsor.ai/{username}/{username}_attribution/public/{username}_attributions_and_costs?api_key={apykey}&_page={page}&_page_size={pagesize}';
-    var startDateEndpoint = 'https://api.windsor.ai/{username}/{username}_attribution/public/{username}_attributions_and_costs?date=$gte.{date}&api_key={apykey}&_page={page}&_page_size={pagesize}';
-    var finished;
-    var values;
-    var selected;
+    var endpoint = 'https://api.windsor.ai/{username}/{username}_attribution/public/{username}_attributions_and_costs?api_key={apikey}&_select={selectedcolumns}&date=$gte.{date}&_page={page}&_page_size={pagesize}';
+    var activeEndpoint;
+
     var cancel;
+    var finished;
+    var failed;
+
+    var selected;
+    var values;
+    
     var statusLabel;
+
     var positionCursor;
+
     var datePicker;
     var dateRest;
+
+    var allColumnsCounter;
+    var allPagesCounter;
 
     // The initialize function must be run each time a new page is loaded.
     Office.initialize = function (reason) {
@@ -78,11 +88,12 @@
             selectedCheckboxes.empty();
 
             // Call API
-            var currentEndpoint = endpoint.split('{username}').join(user).replace('{apykey}', token).replace('{page}', 1).replace('{pagesize}', 1);
+            var isColumnRetrieve = true;
+            var activeEndpoint = buildEndpoint(user, token, isColumnRetrieve).replace('{page}', 1);
 
             showNotification("Connecting to Server", "Retrieving Column List");
 
-            retrieveColumnListAjaxCall(currentEndpoint);
+            retrieveColumnListAjaxCall(activeEndpoint);
         }
         else {
             showNotification('Error', 'Username and token cannot be empty!')
@@ -111,6 +122,8 @@
             var selectedCheckboxes = $('.selected-checkboxes');
             selectedCheckboxes.empty();
 
+            allColumnsCounter = 0;
+
             for (var column in columnsContainer) {
                 var checkbox = '<label class="container">' + column +
                     '<input type="checkbox" checked="checked">' +
@@ -118,6 +131,8 @@
                     '</label>';
 
                 $(checkbox).appendTo(selectedCheckboxes);
+
+                allColumnsCounter++;
             }
 
             // Handle Select/Deselect All Button
@@ -125,6 +140,29 @@
             $('.selectdeselectall').text('Deselect All');
         }).fail(function (status) {
             showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
+        });
+    }
+
+    function retievePagesNumberAjaxCall(activeEndpoint) {
+        var tempEndpoint = activeEndpoint.replace('_page={page}&_page_size=' + pageSize, '_count=date');
+
+        $.ajax({
+            url: tempEndpoint,
+            type: 'GET',
+            dataType: 'json',
+            crossDomain: true
+        }).done(function (data) {
+
+            if (data.count) {
+                allPagesCounter = Math.ceil(data.count / pageSize) + 1;
+            }
+            else {
+                allPagesCounter = '-';
+            }
+
+            next();
+        }).fail(function (status) {
+            allPagesCounter = '-';
         });
     }
 
@@ -163,8 +201,6 @@
             });
 
             if (selected.length != 0) {
-                clearExcel();
-
                 values = [];
                 values.length = 0;
                 values[0] = selected;
@@ -172,10 +208,11 @@
                 var user = $('#username').val();
                 var token = $('#token').val();
 
+                failed = false;
                 cancel = false;
                 finished = false;
 
-                page =1;
+                page = 1;
                 positionCursor = 0;
 
                 if (datePicker != undefined && datePicker != 'Invalid Date') {
@@ -185,9 +222,12 @@
                     dateRest = null;
                 }
 
-                showCancel();
+                var isColumnRetrieve = false;
+                activeEndpoint = buildEndpoint(user, token, isColumnRetrieve);
 
-                next();
+                retievePagesNumberAjaxCall(activeEndpoint);
+
+                showCancel();
             }
             else {
                 showNotification('Error', 'Please select at least one data column');
@@ -205,7 +245,6 @@
             type: 'GET',
             dataType: 'json',
             crossDomain: true
-            //async: true
         }).done(function (data) {
 
             try {
@@ -225,9 +264,7 @@
 
                     for (var pair in data[i]) {
 
-                        if (selected.indexOf(pair) != -1) {
-                            rowValues[j] = data[i][pair];
-                        }
+                        rowValues[j] = data[i][pair];
 
                         j++;
                     }
@@ -248,13 +285,10 @@
 
             
         }).fail(function (status) {
+            failed = true;
+
             showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
-            //if (!cancel) {
-            //    next();
-            //}
-            //else {
-                writeToExcel();
-            //}
+            writeToExcel();
         });
     }
 
@@ -280,21 +314,48 @@
 
     var page;
     function next() {
-        statusLabel.text('Page ' + page);
+        statusLabel.text('Page ' + page + '/' + allPagesCounter);
 
-        var user = $('#username').val();
-        var token = $('#token').val();
+        var currEndpoint = activeEndpoint.replace('{page}', page++);
 
-        var currentEndpoint;
+        executeAjaxCall(currEndpoint);
+    }
 
-        if (dateRest) {
-            currentEndpoint = startDateEndpoint.split('{username}').join(user).replace('{date}', dateRest).replace('{apykey}', token).replace('{page}', ++page).replace('{pagesize}', pageSize);
+    function buildEndpoint(user, token, isColumnRetrieve) {
+        var currEndpoint = null;
+
+        // Handle credentials
+
+        currEndpoint = endpoint.split('{username}').join(user).replace('{apikey}', token);
+
+        // Handle columns selection
+
+        if (isColumnRetrieve || (allColumnsCounter === selected.length)) {
+            currEndpoint = currEndpoint.replace('&_select={selectedcolumns}', '');
         }
         else {
-            currentEndpoint = endpoint.split('{username}').join(user).replace('{apykey}', token).replace('{page}', ++page).replace('{pagesize}', pageSize);
+            currEndpoint = currEndpoint.replace('{selectedcolumns}', selected.join(','));
         }
 
-        executeAjaxCall(currentEndpoint);
+        // Handle page size parameter
+
+        if (isColumnRetrieve) {
+            currEndpoint = currEndpoint.replace('{pagesize}', 1);
+        }
+        else {
+            currEndpoint = currEndpoint.replace('{pagesize}', pageSize);
+        }
+
+        // Handle start date selection
+
+        if (dateRest) {
+            currEndpoint = currEndpoint.replace('{date}', dateRest);
+        }
+        else {
+            currEndpoint = currEndpoint.replace('&date=$gte.{date}', '');
+        }
+
+        return currEndpoint;
     }
 
     function writeToExcel() {
@@ -304,9 +365,17 @@
             ctx.application.suspendScreenUpdatingUntilNextSync();
 
             var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+
+            var range;
+
+            if (positionCursor == 0) {
+                range = sheet.getUsedRange();
+                range.clear();
+            }
+
             sheet.freezePanes.freezeRows(1);
 
-            var range = sheet.getRangeByIndexes(positionCursor, 0, values.length, values[0].length);
+            range = sheet.getRangeByIndexes(positionCursor, 0, values.length, values[0].length);
 
             range.values = values;
             range.format.autofitColumns();
@@ -321,31 +390,16 @@
                     messageBanner.hideBanner();
                 }
 
-                if (!finished && !cancel) {
-                    next();
-                }
-                // Ako je failed, ide dalje program (pokriti to)
                 if (finished) {
                     statusLabel.empty();
                     hideCancel();
                     showNotification('Finished', '');
                 }
+
+                if (!finished && !cancel && !failed) {
+                    next();
+                }
             });
-
-        }).catch(errorHandler);
-    }
-
-    function clearExcel() {
-        Excel.run(function (ctx) {
-            ctx.application.suspendApiCalculationUntilNextSync();
-            ctx.application.suspendScreenUpdatingUntilNextSync();
-
-            var sheet = ctx.workbook.worksheets.getActiveWorksheet();
-
-            var range = sheet.getRange();
-            range.clear();
-
-            return ctx.sync();
 
         }).catch(errorHandler);
     }
