@@ -104,7 +104,7 @@
 
         $.ajax({
             url: endpoint,
-            type: 'GET',
+            type: 'POST',
             dataType: 'json',
             crossDomain: true,
             async: false
