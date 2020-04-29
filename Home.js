@@ -106,7 +106,8 @@
             url: endpoint,
             type: 'GET',
             dataType: 'json',
-            crossDomain: true
+            crossDomain: true,
+            async: false
         }).done(function (data) {
 
             if (data.error) {
