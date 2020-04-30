@@ -102,7 +102,13 @@
 
     function retrieveColumnListAjaxCall(endpoint) {
 
-        $.getJSON(endpoint, function (data) {
+        $.ajax({
+            url: endpoint,
+            type: 'GET',
+            dataType: 'json',
+            crossDomain: true
+        }).done(function (data) {
+
             if (data.error) {
                 showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
 
@@ -132,48 +138,9 @@
             // Handle Select/Deselect All Button
             $('#all').attr('action', 'deselectall');
             $('.selectdeselectall').text('Deselect All');
+        }).fail(function (status) {
+            showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
         });
-        //$.ajax({
-        //    url: endpoint,
-        //    type: 'GET',
-        //    dataType: 'json',
-        //    crossDomain: true,
-        //    data: "",
-        //    contentType: "application/json; charset=utf-8"
-        //}).done(function (data) {
-
-        //    if (data.error) {
-        //        showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
-
-        //        return;
-        //    }
-
-        //    messageBanner.hideBanner();
-
-        //    var columnsContainer = data[0];
-
-        //    var selectedCheckboxes = $('.selected-checkboxes');
-        //    selectedCheckboxes.empty();
-
-        //    allColumnsCounter = 0;
-
-        //    for (var column in columnsContainer) {
-        //        var checkbox = '<label class="container">' + column +
-        //            '<input type="checkbox" checked="checked">' +
-        //            '<span class="checkmark"></span>' +
-        //            '</label>';
-
-        //        $(checkbox).appendTo(selectedCheckboxes);
-
-        //        allColumnsCounter++;
-        //    }
-
-        //    // Handle Select/Deselect All Button
-        //    $('#all').attr('action', 'deselectall');
-        //    $('.selectdeselectall').text('Deselect All');
-        //}).fail(function (status) {
-        //    showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
-        //});
     }
 
     function retievePagesNumberAjaxCall(activeEndpoint) {
