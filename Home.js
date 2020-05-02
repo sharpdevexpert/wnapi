@@ -112,7 +112,7 @@
             //data = JSON.parse(data);
 
             if (data.error) {
-                showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
+                showNotification('The API returned an error1', 'Please check the credentials you supplied and try again');
 
                 return;
             }
@@ -141,7 +141,7 @@
             $('#all').attr('action', 'deselectall');
             $('.selectdeselectall').text('Deselect All');
         }).fail(function (status) {
-            showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
+            showNotification('The API returned an error1', 'Please check the credentials you supplied and try again');
         });
     }
 
