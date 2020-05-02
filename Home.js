@@ -105,9 +105,11 @@
         $.ajax({
             url: endpoint,
             type: 'GET',
-            dataType: 'json',
+            dataType: 'text',
             crossDomain: true
         }).done(function (data) {
+
+            data = JSON.parse(data);
 
             if (data.error) {
                 showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
