@@ -103,16 +103,16 @@
     function retrieveColumnListAjaxCall(endpoint) {
 
         $.ajax({
-            url: endpoint,
+            url: 'https://cors-anywhere.herokuapp.com/' + endpoint,
             type: 'GET',
-            dataType: 'text',
+            dataType: 'json',
             crossDomain: true
         }).done(function (data) {
 
-            data = JSON.parse(data);
+            //data = JSON.parse(data);
 
             if (data.error) {
-                showNotification('The API returned an error2', data);
+                showNotification('The API returned an error3', data);
 
                 return;
             }
@@ -141,7 +141,7 @@
             $('#all').attr('action', 'deselectall');
             $('.selectdeselectall').text('Deselect All');
         }).fail(function (status) {
-            showNotification('The API returned an error1', 'Please check the credentials you supplied and try again');
+            showNotification('The API returned an error3', data);
         });
     }
 
