@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
     "use strict";
 
     var messageBanner;
@@ -10,6 +10,7 @@
     var callsPerEnter = 2000;
 
     var endpoint = 'https://api.windsor.ai/{username}/{username}_attribution/public/{username}_attributions_and_costs?api_key={apikey}&_select={selectedcolumns}&date=$gte.{date}&_page={page}&_page_size={pagesize}';
+    var proxyServer = 'https://cors-anywhere.herokuapp.com/';
     var activeEndpoint;
 
     var cancel;
@@ -103,16 +104,14 @@
     function retrieveColumnListAjaxCall(endpoint) {
 
         $.ajax({
-            url: 'https://cors-anywhere.herokuapp.com/' + endpoint,
+            url: proxyServer + endpoint,
             type: 'GET',
             dataType: 'json',
-            crossDomain: true
+            crossDomain: false
         }).done(function (data) {
 
-            //data = JSON.parse(data);
-
             if (data.error) {
-                showNotification('The API returned an error3', data);
+                showNotification('The API returned an error', data.desc);
 
                 return;
             }
@@ -141,7 +140,7 @@
             $('#all').attr('action', 'deselectall');
             $('.selectdeselectall').text('Deselect All');
         }).fail(function (status) {
-            showNotification('The API returned an error3', data);
+            showNotification('The API returned an error', status.responseText);
         });
     }
 
@@ -149,10 +148,10 @@
         var tempEndpoint = activeEndpoint.replace('_page={page}&_page_size=' + pageSize, '_count=date');
 
         $.ajax({
-            url: tempEndpoint,
+            url: proxyServer + tempEndpoint,
             type: 'GET',
             dataType: 'json',
-            crossDomain: true
+            crossDomain: false
         }).done(function (data) {
 
             if (data.count) {
@@ -243,15 +242,15 @@
     function executeAjaxCall(endpoint) {
 
         $.ajax({
-            url: endpoint,
+            url: proxyServer + endpoint,
             type: 'GET',
             dataType: 'json',
-            crossDomain: true
+            crossDomain: false
         }).done(function (data) {
 
             try {
                 if (data.error) {
-                    showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
+                    showNotification('The API returned an error', data.desc);
 
                     return;
                 }
@@ -289,7 +288,7 @@
         }).fail(function (status) {
             failed = true;
 
-            showNotification('The API returned an error', 'Please check the credentials you supplied and try again');
+            showNotification('The API returned an error', status.responseText);
             writeToExcel();
         });
     }
